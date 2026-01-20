@@ -1,5 +1,7 @@
 # Exploration Geochem Dashboard
 
+Deployed to: https://cdogs-geochem-dashboard.vercel.app/
+
 I built this to support a typical exploration "field assistant" workflow: take a geochem spreadsheet, clean it up, check for obvious issues, then map the results so anomalies and follow-up areas are easy to review.
 
 ## Data source
