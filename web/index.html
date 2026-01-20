@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Exploration Geochem Dashboard</title>
+  <link href="style.css" rel="stylesheet" />
+  <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+</head>
+<body>
+  <div id="app">
+    <div id="sidebar">
+      <div class="h1">Exploration Geochem Dashboard</div>
+      <div id="banner" class="banner hidden" role="status" aria-live="polite"></div>
+
+      <div class="small">
+        CDoGS NGR Bulk Stream Sediment (SS-1). Interactive anomaly mapping + target clustering for follow-up planning.
+      </div>
+
+      <div class="card">
+        <div class="h1" style="font-size:14px;">Controls</div>
+        <div class="row">
+          <label for="element">Element</label>
+          <select id="element"></select>
+        </div>
+
+        <div class="row">
+          <label for="pct">Anomaly threshold</label>
+          <select id="pct">
+            <option value="p95">Top 5% (p95)</option>
+            <option value="p99">Top 1% (p99)</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <label for="toggle-all">Show all samples</label>
+          <div class="toggle-row">
+            <span class="small">Grey clustered layer (zoom ≥ 6)</span>
+            <label class="switch">
+              <input id="toggle-all" type="checkbox" checked />
+              <span class="slider" aria-hidden="true"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="h1" style="font-size:14px;">Legend</div>
+        <div class="legend">
+          <div class="legend-item"><span class="swatch swatch-all" aria-hidden="true"></span><span>All samples (clustered)</span></div>
+          <div class="legend-item"><span class="swatch swatch-anom" aria-hidden="true"></span><span>Anomalies (>= threshold)</span></div>
+          <div class="legend-item"><span class="swatch swatch-target" aria-hidden="true"></span><span>Target centroid (ring + label)</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="h1" style="font-size:14px;">About</div>
+        <div class="small">
+          This dashboard is built from a reproducible pipeline: spreadsheet ingestion, field-sample filtering, coordinate validation,
+          detection-limit handling (negative values treated as DL/2), basic QA/QC summary, percentile thresholds (p95/p99),
+          and DBSCAN clustering on anomalies to produce exportable targets.
+        </div>
+        <div class="small" style="margin-top:8px;">
+          <b>Method</b>: anomalies = values >= chosen percentile; targets = DBSCAN clusters of anomalies (centroids + summary stats).
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="h1" style="font-size:14px;">QC Summary</div>
+        <div id="qc"></div>
+      </div>
+
+      <div class="card">
+        <div class="h1" style="font-size:14px;">Element stats</div>
+        <div id="stats"></div>
+      </div>
+
+      <div class="card">
+        <div class="h1" style="font-size:14px;">Targets (cluster centroids)</div>
+        <div class="small">Click a target to zoom.</div>
+        <div id="targets"></div>
+      </div>
+
+      <div class="card">
+        <div class="h1" style="font-size:14px;">Downloads</div>
+        <div class="downloads">
+          <a href="./data/qc_summary.json">qc_summary.json</a>
+          <a href="./data/stats.json">stats.json</a>
+          <a href="./data/samples.geojson">samples.geojson</a>
+          <a href="./data/targets.geojson">targets.geojson</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="map"></div>
+  </div>
+
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
