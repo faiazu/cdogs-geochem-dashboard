@@ -10,6 +10,8 @@ const MAP_SETTINGS = Object.freeze({
   minZoomAllSamples: 6,
   clusterRadiusPx: 45,
   clusterMaxZoom: 9,
+  fitBoundsPaddingPx: 40,
+  fitBoundsMaxZoom: 7.5,
   allSamplesOpacity: 0.18,
   clustersOpacity: 0.18,
   anomaliesOpacity: 0.9,
@@ -137,6 +139,28 @@ function getCenterFromSamples(samples){
   const lon = coords.reduce((sum, c) => sum + c[0], 0) / coords.length;
   const lat = coords.reduce((sum, c) => sum + c[1], 0) / coords.length;
   return [lon, lat];
+}
+
+function getBoundsFromGeoJSON(geojson){
+  const feats = geojson?.features ?? [];
+  let minLon = Infinity;
+  let minLat = Infinity;
+  let maxLon = -Infinity;
+  let maxLat = -Infinity;
+
+  for(const f of feats){
+    const c = f?.geometry?.coordinates;
+    if(!Array.isArray(c) || c.length !== 2) continue;
+    const [lon, lat] = c;
+    if(!Number.isFinite(lon) || !Number.isFinite(lat)) continue;
+    minLon = Math.min(minLon, lon);
+    minLat = Math.min(minLat, lat);
+    maxLon = Math.max(maxLon, lon);
+    maxLat = Math.max(maxLat, lat);
+  }
+
+  if(!Number.isFinite(minLon)) return null;
+  return [[minLon, minLat], [maxLon, maxLat]];
 }
 
 function initMap({ samples, targets }){
@@ -457,6 +481,14 @@ python3 -m http.server 8000 --directory web
     bindMapInteractions(map, ui);
     bindUI(map, ui, data);
     setControlsEnabled(ui, true);
+
+    const bounds = getBoundsFromGeoJSON(data.samples) || getBoundsFromGeoJSON(data.targets);
+    if(bounds){
+      map.fitBounds(bounds, {
+        padding: MAP_SETTINGS.fitBoundsPaddingPx,
+        maxZoom: MAP_SETTINGS.fitBoundsMaxZoom
+      });
+    }
   });
 }
 
